@@ -29,7 +29,7 @@ cp .env.example .env   # then add your GROQ_API_KEY
 npm run dev
 ```
 
-Runs on `http://localhost:4000`.
+Runs on `http://localhost:3000`.
 
 ## Frontend setup
 
