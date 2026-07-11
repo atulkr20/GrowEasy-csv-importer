@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import importRoutes from "./routes/import.routes";
+import { errorHandler } from "./middleware/errorHandler.middleware";
 
 dotenv.config();
 
@@ -16,6 +17,8 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api/import", importRoutes);
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 
