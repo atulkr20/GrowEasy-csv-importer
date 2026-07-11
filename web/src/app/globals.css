@@ -1,0 +1,314 @@
+/*
+ * GrowEasy CSV Importer — Design Token System
+ *
+ * PALETTE RATIONALE
+ * -----------------
+ * Subject: Messy lead data → structured CRM records. Operator tool used many
+ * times a day. Design language: instrument panel, not marketing site.
+ *
+ * Dark (default):
+ *   bg             #0C1117  Near-black with faint indigo cast. Not pure black —
+ *                           avoids "terminal hacker" feel while staying dark.
+ *   surface        #141A27  Card/panel layer, clearly distinct from bg.
+ *   surface-elev   #1C2438  Table headers, elevated panels.
+ *   surface-hover  #232C42  Row hover state.
+ *   border         #273049  Visible but not loud.
+ *   text-primary   #D1D9E6  Cool white — keeps it data-focused, not warm.
+ *   text-secondary #7A8BA8  Muted labels.
+ *   accent         #3E7CF5  Desaturated action blue. Primary CTA, progress.
+ *                           Restrained — not neon, not electric.
+ *   success        #0EB37C  Teal-green (not default #22c55e). Reads "clean/structured".
+ *   skipped        #E8920A  Amber. Warm contrast to teal — "attention" not "error".
+ *   error          #E5484D  Soft red for hard failures.
+ *
+ * Light:
+ *   bg             #F2F5FB  Light blue-gray — not white, not cream.
+ *   surface        #FFFFFF  Cards.
+ *   surface-elev   #EBF0FA  Table headers.
+ *   border         #C8D3E8  Borders.
+ *   text-primary   #1A2235  Near-black with blue tint.
+ *   text-secondary #5A6A8A  Muted.
+ *   (accent/success/skipped/error unchanged)
+ *
+ * TYPEFACES
+ * ---------
+ *   Inter         — UI chrome, labels, headings. Legible at small sizes.
+ *   IBM Plex Mono — Tabular data: CSV values, counts, status codes.
+ *                   Column values scan better in mono. Core to this tool.
+ *
+ * SIGNATURE ELEMENT
+ * -----------------
+ *   Batch pipeline progress bar: during AI processing, each batch is shown
+ *   as a segment in a horizontal track. Completed = teal fill. Active =
+ *   pulsing accent blue. Pending = dim. This maps directly to what the AI
+ *   backend is actually doing, making the wait feel informative not opaque.
+ *
+ * MOTION
+ * ------
+ *   Only state-change clarification: row entry, progress updates.
+ *   Respects prefers-reduced-motion throughout.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@import "tailwindcss";
+
+
+/* ── Design tokens ─────────────────────────────────────── */
+:root {
+  /* Dark mode (default) */
+  --bg:               #0C1117;
+  --surface:          #141A27;
+  --surface-elevated: #1C2438;
+  --surface-hover:    #232C42;
+  --border:           #273049;
+  --text-primary:     #D1D9E6;
+  --text-secondary:   #7A8BA8;
+  --text-tertiary:    #4A5572;
+
+  --accent:           #3E7CF5;
+  --accent-hover:     #5A8CF7;
+  --accent-muted:     rgba(62, 124, 245, 0.15);
+
+  --success:          #0EB37C;
+  --success-muted:    rgba(14, 179, 124, 0.12);
+  --skipped:          #E8920A;
+  --skipped-muted:    rgba(232, 146, 10, 0.12);
+  --error:            #E5484D;
+  --error-muted:      rgba(229, 72, 77, 0.12);
+
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+}
+
+[data-theme="light"] {
+  --bg:               #F2F5FB;
+  --surface:          #FFFFFF;
+  --surface-elevated: #EBF0FA;
+  --surface-hover:    #E1E9F7;
+  --border:           #C8D3E8;
+  --text-primary:     #1A2235;
+  --text-secondary:   #5A6A8A;
+  --text-tertiary:    #9AAAC5;
+}
+
+/* ── Base ──────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { font-size: 14px; }
+
+body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ── Typography ────────────────────────────────────────── */
+.font-mono {
+  font-family: 'IBM Plex Mono', 'Fira Code', monospace;
+}
+
+/* ── Scrollbars ────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+/* ── Utility classes ───────────────────────────────────── */
+.surface {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.surface-elevated {
+  background: var(--surface-elevated);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.btn-ghost:hover {
+  background: var(--surface-elevated);
+  color: var(--text-primary);
+  border-color: var(--text-tertiary);
+}
+
+/* ── Table base ────────────────────────────────────────── */
+.data-table-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.data-table-scroll {
+  overflow: auto;
+  max-height: 420px;
+}
+
+.data-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--surface-elevated);
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.data-table td {
+  padding: 7px 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover td {
+  background: var(--surface-hover);
+}
+
+/* ── Batch pipeline ────────────────────────────────────── */
+@keyframes batch-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.batch-segment-active {
+  animation: batch-pulse 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .batch-segment-active {
+    animation: none;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ── Row entry animation ───────────────────────────────── */
+@keyframes row-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.row-enter {
+  animation: row-in 0.2s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row-enter { animation: none; }
+}
+
+/* ── Status badge ──────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.badge-success {
+  background: var(--success-muted);
+  color: var(--success);
+}
+
+.badge-skipped {
+  background: var(--skipped-muted);
+  color: var(--skipped);
+}
+
+.badge-error {
+  background: var(--error-muted);
+  color: var(--error);
+}
+
+/* ── Step indicator ────────────────────────────────────── */
+.step-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.step-line-done {
+  background: var(--accent);
+}
