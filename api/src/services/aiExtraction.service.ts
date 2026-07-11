@@ -21,6 +21,13 @@ export interface ExtractionSummary {
   totalSkipped: number;
 }
 
+export interface BatchProgress {
+  batchIndex: number;
+  totalBatches: number;
+  processedRows: number;
+  totalRows: number;
+}
+
 async function extractBatch(
   rows: Record<string, string>[]
 ): Promise<ExtractionResultItem[]> {
@@ -64,7 +71,8 @@ async function extractBatch(
 }
 
 export async function extractCrmRecords(
-  rows: Record<string, string>[]
+  rows: Record<string, string>[],
+  onProgress?: (progress: BatchProgress) => void
 ): Promise<ExtractionSummary> {
   const batches = chunkArray(rows, BATCH_SIZE);
   const records: CrmRecord[] = [];
@@ -72,7 +80,8 @@ export async function extractCrmRecords(
 
   let globalIndex = 0;
 
-  for (const batch of batches) {
+  for (let i = 0; i < batches.length; i++) {
+    const batch = batches[i];
     try {
       const results = await extractBatch(batch);
 
@@ -95,6 +104,13 @@ export async function extractCrmRecords(
         globalIndex++;
       });
     }
+
+    onProgress?.({
+      batchIndex: i + 1,
+      totalBatches: batches.length,
+      processedRows: globalIndex,
+      totalRows: rows.length,
+    });
   }
 
   return {
